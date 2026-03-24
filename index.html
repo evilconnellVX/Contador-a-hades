@@ -3,360 +3,534 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Contador Hades</title>
+    <title>Hades - Melanie Martinez</title>
+    <!-- Usamos Tailwind por CDN porque es mas rapido de configurar -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Animaciones para los números rodantes */
-        @keyframes slideOutUp {
-            from { transform: translateY(0); opacity: 1; filter: blur(0); }
-            to { transform: translateY(-100%); opacity: 0; filter: blur(3px); }
+        /* Animaciones CSS - No mover estos keyframes */
+        @keyframes slideOutUp { 
+            0% { transform: translateY(0); opacity: 1; filter: blur(0); } 
+            100% { transform: translateY(-100%); opacity: 0; filter: blur(3px); } 
         }
-        @keyframes slideInUp {
-            from { transform: translateY(100%); opacity: 0; filter: blur(3px); }
-            to { transform: translateY(0); opacity: 1; filter: blur(0); }
+        @keyframes slideInUp { 
+            0% { transform: translateY(100%); opacity: 0; filter: blur(3px); } 
+            100% { transform: translateY(0); opacity: 1; filter: blur(0); } 
         }
-        .animate-slideOutUp { animation: slideOutUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .animate-slideInUp { animation: slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-
-        /* Animaciones estilo DVD */
-        @keyframes bounceX { 0% { transform: translateX(-4%); } 100% { transform: translateX(4%); } }
-        @keyframes bounceY { 0% { transform: translateY(-4%) scale(1.2); } 100% { transform: translateY(4%) scale(1.2); } }
-        .animate-dvd-x { animation: bounceX 16s linear infinite alternate; }
-        .animate-dvd-y { animation: bounceY 13s linear infinite alternate; }
-
-        /* Transiciones de interfaz */
-        .fade-transition { transition: opacity 2s ease-in-out; }
-        .ui-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        body { background-color: #030303; touch-action: pan-y; }
+        .animate-slideOutUp { animation: slideOutUp 0.4s ease forwards; }
+        .animate-slideInUp { animation: slideInUp 0.4s ease forwards; }
 
-        /* Esconder scrollbar pero permitir swipe */
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Efecto rebote del fondo como el DVD */
+        @keyframes bounceX { from { transform: translateX(-3%); } to { transform: translateX(3%); } }
+        @keyframes bounceY { from { transform: translateY(-3%) scale(1.15); } to { transform: translateY(3%) scale(1.15); } }
+        
+        .anim-dvd-x { animation: bounceX 18s linear infinite alternate; }
+        .anim-dvd-y { animation: bounceY 14s linear infinite alternate; }
+
+        /* Cenizas flotando */
+        @keyframes floatParticulas {
+            0% { transform: translateY(100vh) translateX(0) scale(1); opacity: 0; }
+            20% { opacity: 0.8; }
+            80% { opacity: 0.5; }
+            100% { transform: translateY(-20vh) translateX(20px) scale(0.5); opacity: 0; }
+        }
+
+        .fade-img { transition: opacity 2s ease-in-out; }
+        
+        /* Ocultar barra de scroll para que no se vea feo como Salma (no queda 💜) */
+        body { background-color: #030303; overflow-x: hidden; touch-action: pan-y; }
     </style>
 </head>
-<body class="flex justify-center items-center min-h-screen w-full m-0 p-0 font-sans selection:bg-white/20">
+<body class="flex justify-center items-center min-h-screen w-full m-0 p-0 font-sans">
 
-    <div class="w-full max-w-md h-[100dvh] mx-auto flex flex-col bg-[#050505] text-white relative overflow-hidden sm:h-[850px] sm:rounded-[2.5rem] sm:border sm:border-white/10 sm:shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+    <!-- Contenedor principal del telefono -->
+    <div class="w-full max-w-md h-[100dvh] mx-auto flex flex-col bg-[#050505] text-white relative overflow-hidden sm:h-[850px] sm:rounded-[2.5rem] sm:border sm:border-gray-800">
         
-        <!-- SECCIÓN SUPERIOR: Fondos dinámicos -->
+        <!-- ==============================
+             AVISO DE AUDIO (Arriba)
+             ============================== -->
+        <div id="aviso-audio" class="absolute top-10 left-0 right-0 flex justify-center z-50 pointer-events-none transition-opacity duration-1000">
+            <span class="bg-black/50 text-gray-300 text-[10px] tracking-widest uppercase px-4 py-1 rounded-full backdrop-blur-md border border-gray-600">
+                Toca para reproducir
+snippets ---->
+            </span>
+        </div>
+
+        <!-- Boton para mutear -->
+        <button id="btn-mutear" class="absolute top-8 right-6 z-50 w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex justify-center items-center border border-gray-600 text-gray-400 hover:text-white transition">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                <path id="icono-audio-path" d="M11 5L6 9H2v6h4l5 4V5z M22 9l-6 6 M16 9l6 6"></path> <!-- X de silencio por defecto -->
+            </svg>
+        </button>
+
+        <!-- ==============================
+             FONDOS Y PARTICULAS
+             ============================== -->
         <div class="relative flex-1 w-full h-full overflow-hidden bg-black">
             
-            <!-- CAPA DE REBOTE DVD Y ZOOM -->
-            <div class="absolute inset-0 w-full h-full animate-dvd-x">
-                <div class="absolute inset-0 w-full h-full animate-dvd-y">
-                    <img id="bg-img-1" class="absolute inset-0 w-full h-full object-cover fade-transition opacity-100 z-0" src="" alt="Fondo 1" />
-                    <img id="bg-img-2" class="absolute inset-0 w-full h-full object-cover fade-transition opacity-0 z-10" src="" alt="Fondo 2" />
+            <div class="absolute inset-0 w-full h-full anim-dvd-x">
+                <div class="absolute inset-0 w-full h-full anim-dvd-y">
+                    <!-- Z-index para poner una arriba de la otra -->
+                    <img id="imagen-fondo-1" class="absolute inset-0 w-full h-full object-cover fade-img opacity-100 z-0" src="" alt="Fondo 1" />
+                    <img id="imagen-fondo-2" class="absolute inset-0 w-full h-full object-cover fade-img opacity-0 z-10" src="" alt="Fondo 2" />
                 </div>
             </div>
 
-            <!-- Viñeta cinematográfica (Bordes oscurecidos) -->
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(0,0,0,0.7)_100%)] pointer-events-none z-20"></div>
-            
-            <!-- Degradado inferior fundido con el fondo -->
-            <div class="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent pointer-events-none z-20"></div>
+            <div id="contenedor-particulas" class="absolute inset-0 z-20 pointer-events-none"></div>
 
-            <!-- CONTENEDOR INTERACTIVO DEL CONTADOR -->
-            <div id="swipe-area" class="absolute bottom-10 left-4 right-4 z-30 flex flex-col items-center gap-3 cursor-grab active:cursor-grabbing">
+            <!-- Sombras para que el texto se lea bien -->
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(0,0,0,0.8)_100%)] z-20"></div>
+            <div class="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[#0a0a0a] to-transparent z-20"></div>
+
+            <!-- ==============================
+                 WIDGET DEL CONTADOR
+                 ============================== -->
+            <!-- Area donde detectamos si el usuario hace swipe -->
+            <div id="area-swipe" class="absolute bottom-6 left-4 right-4 z-40 flex flex-col items-center gap-3">
                 
-                <div class="w-full rounded-[2rem] bg-gradient-to-br from-white/[0.08] to-white/[0.01] backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.6)] p-4 flex items-center gap-4 ring-1 ring-white/5 relative overflow-hidden">
+                <div id="panel-cristal" class="w-full rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-4 flex items-center gap-4 transition-all duration-500">
                     
-                    <div class="absolute top-0 left-1/4 w-1/2 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
-
-                    <!-- Imagen en miniatura (Thumbnail) -->
-                    <div class="relative w-16 h-16 flex-shrink-0">
-                        <div class="absolute inset-0 bg-white/20 blur-md rounded-2xl"></div>
-                        <div class="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-white/20">
-                            <!-- Siempre mantengo la imagen de fallback visual en caso de fallo como solicitaste -->
-                            <img src="./thumbnail.jpg" alt="Miniatura" class="w-full h-full object-cover bg-[#1a1a1a] hover:scale-110 transition-transform duration-700" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=200&auto=format&fit=crop';"/>
-                        </div>
+                    <!-- Foto chiquita (Thumbnail) -->
+                    <div id="caja-thumbnail" class="relative w-16 h-16 flex-shrink-0">
+                        <div class="absolute inset-0 bg-white/20 blur-md rounded-xl"></div>
+                        <img src="./thumbnail.jpg" alt="Miniatura" class="relative w-full h-full object-cover rounded-xl shadow-lg border border-white/20" onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=200&auto=format&fit=crop';"/>
                     </div>
 
-                    <!-- ÁREA DE CONTENIDO DINÁMICO (Cambia con el swipe) -->
-                    <div id="modes-container" class="flex-1 relative h-[60px] w-full ui-transition">
-                        <!-- El contenido se inyecta desde JavaScript -->
+                    <!-- Aqui se van a poner los modos (1, 2, 3 o 4) desde JS -->
+                    <div id="contenedor-modos" class="flex-1 relative h-[60px] w-full transition-all duration-300">
+                        <!-- Vacio, se llena con innerHTML -->
                     </div>
+
+                    <!-- Texto cuando ya salio el album (escondido al inicio) -->
+                    <div id="mensaje-salida" class="hidden flex-1 h-[60px] w-full flex-col justify-center items-center">
+                        <span class="text-sm font-bold tracking-widest text-white uppercase animate-pulse">¡Ya Disponible!</span>
+                        <span class="text-[10px] text-gray-400 mt-1">Hades ha llegado</span>
+                    </div>
+
                 </div>
 
-                <!-- Puntos indicadores de páginas (Dots) -->
-                <div class="flex gap-2 items-center mt-1">
-                    <div class="nav-dot w-1.5 h-1.5 rounded-full bg-white transition-all duration-300"></div>
-                    <div class="nav-dot w-1.5 h-1.5 rounded-full bg-white/30 transition-all duration-300"></div>
-                    <div class="nav-dot w-1.5 h-1.5 rounded-full bg-white/30 transition-all duration-300"></div>
-                    <div class="nav-dot w-1.5 h-1.5 rounded-full bg-white/30 transition-all duration-300"></div>
+                <!-- Puntitos de navegacion -->
+                <div id="puntitos" class="flex gap-2 items-center mt-1">
+                    <div class="dot w-1.5 h-1.5 rounded-full bg-white transition"></div>
+                    <div class="dot w-1.5 h-1.5 rounded-full bg-gray-500 transition"></div>
+                    <div class="dot w-1.5 h-1.5 rounded-full bg-gray-500 transition"></div>
+                    <div class="dot w-1.5 h-1.5 rounded-full bg-gray-500 transition"></div>
                 </div>
             </div>
         </div>
 
-        <!-- SECCIÓN INFERIOR: Títulos -->
-        <div class="h-[150px] bg-gradient-to-b from-[#0a0a0a] to-black flex flex-col justify-center px-8 sm:px-10 z-30 relative shrink-0">
-            <h1 class="text-4xl sm:text-5xl font-normal tracking-wider text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.25)]">
+        <!-- ==============================
+             TEXTOS Y BOTON PRESAVE
+             ============================== -->
+        <div class="h-[180px] bg-gradient-to-b from-[#0a0a0a] to-black flex flex-col justify-center px-8 z-30 shrink-0">
+            <h1 class="text-4xl font-normal tracking-wider text-white">
                 𝕳𝖆𝖉𝖊𝖘
             </h1>
-            <h2 class="text-lg sm:text-xl font-normal tracking-[0.15em] text-white/50 mt-2 drop-shadow-md">
-                𝕸𝖊𝖑𝖆𝖓𝖎𝖊 𝕸𝖆𝖗𝖙𝖎𝖓𝖊𝖟
-            </h2>
+            <div class="flex justify-between items-end mt-2">
+                <h2 class="text-xl font-normal text-gray-400">
+                    𝕸𝖊𝖑𝖆𝖓𝖎𝖊 𝕸𝖆𝖗𝖙𝖎𝖓𝖊𝖟
+                </h2>
+                
+                <!-- Boton oficial -->
+                <a href="https://melaniemartinez.lnk.to/HADES" target="_blank" class="px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition flex items-center gap-2">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.587 14.424c-.177.292-.55.385-.843.208-2.31-1.41-5.22-1.73-8.654-.95-.333.076-.66-.134-.736-.467-.076-.333.134-.66.467-.736 3.755-.85 6.96-.484 9.558 1.103.293.178.385.55.208.842zm1.2-3.195c-.22.36-.69.48-1.05.26-2.65-1.63-6.72-2.11-9.98-1.15-.41.12-.84-.11-.96-.52-.12-.41.11-.84.52-.96 3.73-1.09 8.28-.54 11.31 1.32.36.22.48.69.26 1.05zm.14-3.38c-3.18-1.89-8.43-2.07-11.46-1.14-.49.15-.99-.13-1.14-.62-.15-.49.13-.99.62-1.14 3.52-1.08 9.35-.87 13.06 1.33.44.26.58.84.32 1.28-.26.44-.84.58-1.28.32z"/>
+                    </svg>
+                    <span id="texto-boton" class="text-[10px] font-bold text-white uppercase">Pre-Save</span>
+                </a>
+            </div>
         </div>
 
     </div>
 
+    <!-- JAVASCRIPT -->
     <script>
+        console.log("Iniciando aplicación del contador de Hades...");
+
         // ==========================================
-        // SISTEMA INTELIGENTE DE IMÁGENES
+        // 1. REPRODUCTOR DE MÚSICA
         // ==========================================
-        const potentialCovers = [
+        let cancionFondo = new Audio('./audio1.mp3');
+        cancionFondo.volume = 0.25; 
+        cancionFondo.loop = true; 
+        
+        let estaReproduciendo = false;
+        let yaTocoPantalla = false;
+
+        cancionFondo.onloadedmetadata = function() {
+            let duracionTotal = cancionFondo.duration;
+            let segundoAleatorio = Math.random() * duracionTotal;
+            cancionFondo.currentTime = segundoAleatorio;
+        };
+
+        const avisoTexto = document.getElementById('aviso-audio');
+        const btnMutear = document.getElementById('btn-mutear');
+        const iconoPath = document.getElementById('icono-audio-path');
+
+        const iconoSinSonido = "M11 5L6 9H2v6h4l5 4V5z M22 9l-6 6 M16 9l6 6";
+        const iconoConSonido = "M11 5L6 9H2v6h4l5 4V5z M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07";
+
+        function iniciarMusica(evento) {
+            if (evento && evento.target.closest('#btn-mutear')) return;
+
+            if (yaTocoPantalla == false) {
+                yaTocoPantalla = true;
+                if(avisoTexto) avisoTexto.style.opacity = "0"; 
+                
+                let prom = cancionFondo.play();
+                if (prom !== undefined) {
+                    prom.then(() => {
+                        estaReproduciendo = true;
+                        iconoPath.setAttribute('d', iconoConSonido);
+                    }).catch(err => {
+                        console.log("Esperando click para audio we: " + err);
+                    });
+                }
+            }
+        }
+
+        document.body.addEventListener('click', iniciarMusica, { once: true });
+        document.body.addEventListener('touchstart', iniciarMusica, { once: true });
+
+        btnMutear.addEventListener('click', function(e) {
+            e.stopPropagation(); 
+            if(yaTocoPantalla == false) {
+                iniciarMusica();
+                return;
+            }
+            
+            if (estaReproduciendo == true) {
+                cancionFondo.pause();
+                estaReproduciendo = false;
+                iconoPath.setAttribute('d', iconoSinSonido);
+            } else {
+                cancionFondo.play();
+                estaReproduciendo = true;
+                iconoPath.setAttribute('d', iconoConSonido);
+            }
+        });
+
+        // ==========================================
+        // 2. PARTICULAS FLOTANTES
+        // ==========================================
+        function generarCenizas() {
+            const divParticulas = document.getElementById('contenedor-particulas');
+            let cuantas = 25; 
+
+            for (let i = 0; i < cuantas; i++) {
+                let p = document.createElement('div');
+                p.className = 'absolute bg-[#ffeedd] rounded-full mix-blend-screen';
+                
+                let tamaño = (Math.random() * 3) + 1; 
+                p.style.width = tamaño + 'px';
+                p.style.height = tamaño + 'px';
+                p.style.left = (Math.random() * 100) + '%';
+                
+                let tiempoAnimacion = (Math.random() * 5) + 6; 
+                let retraso = Math.random() * 10;
+                
+                p.style.animation = `floatParticulas ${tiempoAnimacion}s linear infinite`;
+                p.style.animationDelay = `-${retraso}s`; 
+                
+                divParticulas.appendChild(p);
+            }
+        }
+        generarCenizas();
+
+        // ==========================================
+        // 3. CARRUSEL DE IMAGENES
+        // ==========================================
+        let fotos = [
             './cover1.jpg', './cover2.jpg', './cover3.jpg', './cover4.jpg', './cover5.jpg',
             './cover6.jpg', './cover7.jpg', './cover8.jpg', './cover9.jpg', './cover10.jpg',
             './40730.jpg'
         ];
         
-        let availableCovers = [];
-        let loadedCount = 0;
-        let currentCoverIndex = 0;
-        let activeImgEl = 1;
+        let fotosQuesiSirven = [];
+        let imagenesCargadas = 0;
+        let indiceFoto = 0;
+        let imagenActiva = 1;
 
-        const img1 = document.getElementById('bg-img-1');
-        const img2 = document.getElementById('bg-img-2');
+        const htmlImg1 = document.getElementById('imagen-fondo-1');
+        const htmlImg2 = document.getElementById('imagen-fondo-2');
 
-        potentialCovers.forEach(src => {
-            const tempImg = new Image();
-            tempImg.src = src;
-            tempImg.onload = () => { availableCovers.push(src); checkAllLoaded(); };
-            tempImg.onerror = () => { checkAllLoaded(); };
-        });
+        for(let i=0; i < fotos.length; i++) {
+            let imgTemporal = new Image();
+            imgTemporal.src = fotos[i];
+            
+            imgTemporal.onload = function() {
+                fotosQuesiSirven.push(fotos[i]);
+                revisarCarga();
+            };
+            imgTemporal.onerror = function() {
+                revisarCarga(); 
+            };
+        }
 
-        function checkAllLoaded() {
-            loadedCount++;
-            if (loadedCount === potentialCovers.length && availableCovers.length > 0) {
-                img1.src = availableCovers[0];
-                if(availableCovers.length > 1) setInterval(changeCover, 6500);
+        function revisarCarga() {
+            imagenesCargadas++;
+            if (imagenesCargadas == fotos.length && fotosQuesiSirven.length > 0) {
+                htmlImg1.src = fotosQuesiSirven[0];
+                if(fotosQuesiSirven.length > 1) {
+                    setInterval(cambiarFondo, 6500); 
+                }
             }
         }
 
-        function changeCover() {
-            if (availableCovers.length <= 1) return;
+        function cambiarFondo() {
+            if (fotosQuesiSirven.length <= 1) return; 
+            
+            let siguienteIndice = (indiceFoto + 1) % fotosQuesiSirven.length;
+            let srcSiguiente = fotosQuesiSirven[siguienteIndice];
 
-            const nextIndex = (currentCoverIndex + 1) % availableCovers.length;
-            const nextSrc = availableCovers[nextIndex];
-
-            const preloader = new Image();
-            preloader.src = nextSrc;
-            preloader.onload = () => {
-                currentCoverIndex = nextIndex;
-                if (activeImgEl === 1) {
-                    img2.src = nextSrc;
-                    img2.classList.remove('opacity-0'); img2.classList.add('opacity-100', 'z-10');
-                    img1.classList.remove('opacity-100', 'z-10'); img1.classList.add('opacity-0', 'z-0');
-                    activeImgEl = 2;
+            let preload = new Image();
+            preload.src = srcSiguiente;
+            preload.onload = function() {
+                indiceFoto = siguienteIndice;
+                
+                if (imagenActiva === 1) {
+                    htmlImg2.src = srcSiguiente;
+                    htmlImg2.classList.remove('opacity-0'); htmlImg2.classList.add('opacity-100', 'z-10');
+                    htmlImg1.classList.remove('opacity-100', 'z-10'); htmlImg1.classList.add('opacity-0', 'z-0');
+                    imagenActiva = 2;
                 } else {
-                    img1.src = nextSrc;
-                    img1.classList.remove('opacity-0'); img1.classList.add('opacity-100', 'z-10');
-                    img2.classList.remove('opacity-100', 'z-10'); img2.classList.add('opacity-0', 'z-0');
-                    activeImgEl = 1;
+                    htmlImg1.src = srcSiguiente;
+                    htmlImg1.classList.remove('opacity-0'); htmlImg1.classList.add('opacity-100', 'z-10');
+                    htmlImg2.classList.remove('opacity-100', 'z-10'); htmlImg2.classList.add('opacity-0', 'z-0');
+                    imagenActiva = 1;
                 }
             };
         }
 
         // ==========================================
-        // GESTIÓN DE MODOS (SWIPE)
+        // 4. LOGICA DEL SWIPE Y MODOS (El Widget)
         // ==========================================
-        let currentMode = 0; 
-        const totalModes = 4;
-        const modesContainer = document.getElementById('modes-container');
-        const dots = document.querySelectorAll('.nav-dot');
-        let prevValues = {}; 
+        let modoActual = 0; 
+        let yaSalioElAlbum = false; 
+        const contenedorModos = document.getElementById('contenedor-modos');
+        const puntitosDiv = document.querySelectorAll('.dot');
+        let valoresViejos = {}; 
         
-        const modeTemplates = {
+        let plantillas = {
             0: `
                 <div class="flex justify-between items-center h-full w-full absolute inset-0">
                     <div class="flex flex-col items-center flex-1">
-                        <div id="v-days" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-[0.2em] text-white/40 font-semibold">Días</span>
+                        <div id="box-days" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
+                        <span class="text-[9px] uppercase tracking-widest text-gray-400 font-semibold">Días</span>
                     </div>
-                    <div class="w-[1px] h-6 bg-white/20 rounded-full"></div>
+                    <div class="w-px h-6 bg-white/20"></div>
                     <div class="flex flex-col items-center flex-1">
-                        <div id="v-hours" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-[0.2em] text-white/40 font-semibold">Horas</span>
+                        <div id="box-hours" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
+                        <span class="text-[9px] uppercase tracking-widest text-gray-400 font-semibold">Horas</span>
                     </div>
-                    <div class="w-[1px] h-6 bg-white/20 rounded-full"></div>
+                    <div class="w-px h-6 bg-white/20"></div>
                     <div class="flex flex-col items-center flex-1">
-                        <div id="v-mins" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-[0.2em] text-white/40 font-semibold">Mins</span>
+                        <div id="box-mins" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
+                        <span class="text-[9px] uppercase tracking-widest text-gray-400 font-semibold">Mins</span>
                     </div>
-                    <div class="w-[1px] h-6 bg-white/20 rounded-full"></div>
+                    <div class="w-px h-6 bg-white/20"></div>
                     <div class="flex flex-col items-center flex-1">
-                        <div id="v-secs" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-[0.2em] text-white/40 font-semibold">Segs</span>
+                        <div id="box-secs" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
+                        <span class="text-[9px] uppercase tracking-widest text-gray-400 font-semibold">Segs</span>
                     </div>
                 </div>
             `,
             1: `
                 <div class="flex justify-around items-center h-full w-full absolute inset-0 px-4">
                     <div class="flex flex-col items-center">
-                        <div id="v-days-only" class="relative h-10 w-16 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-white/40 font-semibold">Días</span>
+                        <div id="box-days-only" class="relative h-10 w-16 overflow-hidden flex justify-center items-center"></div>
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400">Días</span>
                     </div>
-                    <div class="w-[1px] h-8 bg-white/20 rounded-full"></div>
+                    <div class="w-px h-8 bg-white/20"></div>
                     <div class="flex flex-col items-center">
-                        <div id="v-hours-only" class="relative h-10 w-16 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[10px] uppercase tracking-[0.2em] text-white/40 font-semibold">Horas</span>
+                        <div id="box-hours-only" class="relative h-10 w-16 overflow-hidden flex justify-center items-center"></div>
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400">Horas</span>
                     </div>
                 </div>
             `,
             2: `
                 <div class="flex justify-around items-center h-full w-full absolute inset-0 px-2">
                     <div class="flex flex-col items-center">
-                        <div id="v-total-hours" class="relative h-10 w-20 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-[0.1em] text-white/40 font-semibold text-center leading-tight">Horas<br>Totales</span>
+                        <div id="box-total-hours" class="relative h-10 w-20 overflow-hidden flex justify-center items-center"></div>
+                        <span class="text-[9px] uppercase tracking-widest text-gray-400 text-center">Horas<br>Totales</span>
                     </div>
-                    <div class="w-[1px] h-8 bg-white/20 rounded-full"></div>
+                    <div class="w-px h-8 bg-white/20"></div>
                     <div class="flex flex-col items-center">
-                        <div id="v-rem-mins" class="relative h-10 w-16 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-[0.1em] text-white/40 font-semibold text-center leading-tight">Mins<br>Actuales</span>
+                        <div id="box-rem-mins" class="relative h-10 w-16 overflow-hidden flex justify-center items-center"></div>
+                        <span class="text-[9px] uppercase tracking-widest text-gray-400 text-center">Mins<br>Actuales</span>
                     </div>
                 </div>
             `,
             3: `
                 <div class="flex justify-center items-center h-full w-full absolute inset-0">
-                    <div class="flex items-center gap-2 sm:gap-3">
-                        <span class="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-white/60 uppercase">¡Quedan</span>
-                        <div id="v-final-days" class="relative h-10 sm:h-12 w-14 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-white/60 uppercase">Días!</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold tracking-widest text-gray-400 uppercase">¡Quedan</span>
+                        <div id="box-final-days" class="relative h-10 w-14 overflow-hidden flex justify-center items-center"></div>
+                        <span class="text-xs font-bold tracking-widest text-gray-400 uppercase">Días!</span>
                     </div>
                 </div>
             `
         };
 
-        function renderMode() {
-            modesContainer.style.opacity = 0; 
+        function renderizarModo() {
+            if(yaSalioElAlbum) return; 
+
+            contenedorModos.style.opacity = "0"; 
             
-            setTimeout(() => {
-                modesContainer.innerHTML = modeTemplates[currentMode];
-                prevValues = {}; 
-                forceUpdate(); 
-                modesContainer.style.opacity = 1;
+            setTimeout(function() {
+                contenedorModos.innerHTML = plantillas[modoActual];
+                valoresViejos = {}; 
+                hacerCalculoReloj(); 
+                contenedorModos.style.opacity = "1";
                 
-                dots.forEach((dot, index) => {
-                    if(index === currentMode) {
-                        dot.classList.remove('bg-white/30'); dot.classList.add('bg-white');
+                for(let k=0; k < puntitosDiv.length; k++) {
+                    if(k === modoActual) {
+                        puntitosDiv[k].className = "dot w-1.5 h-1.5 rounded-full bg-white transition";
                     } else {
-                        dot.classList.remove('bg-white'); dot.classList.add('bg-white/30');
+                        puntitosDiv[k].className = "dot w-1.5 h-1.5 rounded-full bg-gray-500 transition";
                     }
-                });
+                }
             }, 200);
         }
 
-        let touchStartX = 0;
-        let touchEndX = 0;
-        const swipeArea = document.getElementById('swipe-area');
+        // --- Logica de arrastrar (Swipe) ---
+        let inicioX = 0;
+        let finX = 0;
+        let areaSwipe = document.getElementById('area-swipe');
 
-        swipeArea.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
-        swipeArea.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, {passive: true});
+        areaSwipe.addEventListener('touchstart', function(e) { inicioX = e.touches[0].clientX; }, {passive: true});
+        areaSwipe.addEventListener('touchend', function(e) { finX = e.changedTouches[0].clientX; checarSiHizoSwipe(); }, {passive: true});
 
-        let isDragging = false;
-        swipeArea.addEventListener('mousedown', e => { isDragging = true; touchStartX = e.screenX; });
-        window.addEventListener('mouseup', e => { if(isDragging) { touchEndX = e.screenX; handleSwipe(); isDragging = false; }});
+        let mouseApretado = false;
+        areaSwipe.addEventListener('mousedown', function(e) { mouseApretado = true; inicioX = e.clientX; });
+        window.addEventListener('mouseup', function(e) { 
+            if(mouseApretado == true) { finX = e.clientX; checarSiHizoSwipe(); mouseApretado = false; }
+        });
 
-        function handleSwipe() {
-            const threshold = 40; 
-            if (touchStartX - touchEndX > threshold) {
-                currentMode = (currentMode + 1) % totalModes;
-                renderMode();
-            } else if (touchEndX - touchStartX > threshold) {
-                currentMode = (currentMode - 1 + totalModes) % totalModes;
-                renderMode();
+        function checarSiHizoSwipe() {
+            if(yaSalioElAlbum) return; 
+            
+            let distancia = inicioX - finX;
+            if (distancia > 40) {
+                modoActual = modoActual + 1;
+                if(modoActual > 3) modoActual = 0;
+                renderizarModo();
+            } else if (distancia < -40) {
+                modoActual = modoActual - 1;
+                if(modoActual < 0) modoActual = 3;
+                renderizarModo();
             }
         }
 
-        function animateNumber(id, newValue, sizeClass = "text-2xl sm:text-[1.7rem]") {
-            const container = document.getElementById(id);
-            if (!container) return; 
+        // ==========================================
+        // 5. EL RELOJ DE VERDAD (BUG DE EMPALME ARREGLADO)
+        // ==========================================
+        function ponerNumero(idCaja, nuevoValor, clasesTexto = "text-2xl font-bold") {
+            let caja = document.getElementById(idCaja);
+            if (!caja) return; 
+            if (valoresViejos[idCaja] === nuevoValor) return; 
+
+            let textoAMostrar = nuevoValor;
+            if(nuevoValor < 10) { textoAMostrar = "0" + nuevoValor; }
             
-            if (prevValues[id] === newValue) return;
+            let baseStyle = "absolute tabular-nums text-white drop-shadow-md " + clasesTexto;
 
-            const displayValue = newValue.toString().padStart(2, '0');
-            const baseClasses = `current-value absolute ${sizeClass} font-bold tracking-tight tabular-nums text-white drop-shadow-md`;
-
-            const oldElement = container.querySelector('.current-value');
-            if (oldElement) {
-                oldElement.classList.remove('animate-slideInUp');
-                oldElement.classList.add('animate-slideOutUp');
+            // BARRIDO DE LIMPIEZA: Agarrar TODOS los spans q estén en la caja para evitar bugs
+            let elementosViejos = caja.querySelectorAll('span:not(.borrando)');
+            
+            for(let i=0; i < elementosViejos.length; i++) {
+                let viejo = elementosViejos[i];
+                viejo.classList.add('borrando'); // Le ponemos una clase para saber que ya va pa fuera
+                viejo.className = baseStyle + " animate-slideOutUp borrando";
+                
+                // lo borramos medio segundo despues
                 setTimeout(() => {
-                    if (container.contains(oldElement)) container.removeChild(oldElement);
+                    if (caja.contains(viejo)) {
+                        caja.removeChild(viejo);
+                    }
                 }, 400);
             }
 
-            const newElement = document.createElement('span');
-            newElement.className = `${baseClasses} animate-slideInUp`;
-            newElement.textContent = displayValue;
+            // Metemos el nuevo animado desde abajo
+            let nuevoElemento = document.createElement('span');
+            nuevoElemento.className = baseStyle + " animate-slideInUp";
+            nuevoElemento.innerText = textoAMostrar;
             
-            if (prevValues[id] === undefined) newElement.className = baseClasses;
-
-            container.appendChild(newElement);
-            prevValues[id] = newValue;
+            caja.appendChild(nuevoElemento);
+            valoresViejos[idCaja] = nuevoValor;
         }
 
-        // ==========================================
-        // CÁLCULO DE HORA LOCAL GLOBAL
-        // ==========================================
-        function getNextFridayMidnight() {
-            // "new Date()" SIEMPRE obtiene la hora local del dispositivo de quien abre la página.
-            // Si alguien abre esto en España, será su zona horaria. Si lo abren en México, será la de México.
-            const localNow = new Date(); 
+        function calcularViernes() {
+            let hoy = new Date(); 
+            let diasPaViernes = 5 - hoy.getDay();
+            if (diasPaViernes <= 0) {
+                diasPaViernes = diasPaViernes + 7; 
+            }
             
-            // Calculamos cuántos días faltan para el viernes (5)
-            let daysUntilFriday = 5 - localNow.getDay();
-            
-            // Si ya es viernes o sábado, que el contador apunte al próximo viernes
-            if (daysUntilFriday <= 0) daysUntilFriday += 7;
-            
-            // Creamos la fecha objetivo a las 00:00:00 (12:00 a.m.) en la zona horaria LOCAL
-            const nextFridayLocal = new Date(
-                localNow.getFullYear(), 
-                localNow.getMonth(), 
-                localNow.getDate() + daysUntilFriday
-            );
-            
-            nextFridayLocal.setHours(0, 0, 0, 0); // Esto fija la medianoche exacta en el país del usuario
-            return nextFridayLocal.getTime();
+            let proximoViernes = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + diasPaViernes);
+            proximoViernes.setHours(0, 0, 0, 0); 
+            return proximoViernes.getTime();
         }
 
-        let targetDate = getNextFridayMidnight();
+        let fechaObjetivo = calcularViernes();
+        let loopReloj;
 
-        function forceUpdate() {
-            const now = new Date().getTime();
-            let distance = targetDate - now;
+        function hacerCalculoReloj() {
+            if(yaSalioElAlbum) return;
 
-            // Reinicia el contador si ya llegó a cero (es decir, ya es viernes)
-            if (distance <= 0) {
-                targetDate = getNextFridayMidnight();
-                distance = targetDate - now;
+            let ahorita = new Date().getTime();
+            let faltan = fechaObjetivo - ahorita;
+
+            if (faltan <= 0) {
+                yaSalioElAlbum = true;
+                clearInterval(loopReloj); 
+                
+                document.getElementById('contenedor-modos').style.display = 'none';
+                document.getElementById('puntitos').style.display = 'none';
+                document.getElementById('caja-thumbnail').style.display = 'none';
+                
+                let msg = document.getElementById('mensaje-salida');
+                msg.classList.remove('hidden');
+                msg.classList.add('flex');
+
+                let textoBtn = document.getElementById('texto-boton');
+                if (textoBtn) textoBtn.innerText = "ESCUCHAR AHORA";
+                
+                let panel = document.getElementById('panel-cristal');
+                panel.classList.remove('gap-4');
+                panel.classList.add('justify-center');
+                
+                return; 
             }
 
-            const totalDays = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const totalHours = Math.floor(distance / (1000 * 60 * 60));
-            const remHours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const remMinutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const remSeconds = Math.floor((distance % (1000 * 60)) / 1000);
+            let dias = Math.floor(faltan / (1000 * 60 * 60 * 24));
+            let horas_totales = Math.floor(faltan / (1000 * 60 * 60));
+            let horas = Math.floor((faltan % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutos = Math.floor((faltan % (1000 * 60 * 60)) / (1000 * 60));
+            let segundos = Math.floor((faltan % (1000 * 60)) / 1000);
 
-            if(currentMode === 0) {
-                animateNumber('v-days', totalDays);
-                animateNumber('v-hours', remHours);
-                animateNumber('v-mins', remMinutes);
-                animateNumber('v-secs', remSeconds);
-            } else if (currentMode === 1) {
-                animateNumber('v-days-only', totalDays, "text-3xl");
-                animateNumber('v-hours-only', remHours, "text-3xl");
-            } else if (currentMode === 2) {
-                animateNumber('v-total-hours', totalHours, "text-3xl");
-                animateNumber('v-rem-mins', remMinutes, "text-3xl");
-            } else if (currentMode === 3) {
-                animateNumber('v-final-days', totalDays, "text-3xl sm:text-[2rem] text-white");
+            if(modoActual == 0) {
+                ponerNumero('box-days', dias);
+                ponerNumero('box-hours', horas);
+                ponerNumero('box-mins', minutos);
+                ponerNumero('box-secs', segundos);
+            } 
+            else if (modoActual == 1) {
+                ponerNumero('box-days-only', dias, "text-3xl");
+                ponerNumero('box-hours-only', horas, "text-3xl");
+            } 
+            else if (modoActual == 2) {
+                ponerNumero('box-total-hours', horas_totales, "text-3xl");
+                ponerNumero('box-rem-mins', minutos, "text-3xl");
+            } 
+            else if (modoActual == 3) {
+                ponerNumero('box-final-days', dias, "text-3xl");
             }
         }
 
-        renderMode();
-        setInterval(forceUpdate, 1000);
+        renderizarModo();
+        loopReloj = setInterval(hacerCalculoReloj, 1000); 
+
     </script>
 </body>
 </html>
