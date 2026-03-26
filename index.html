@@ -37,7 +37,7 @@
 
         .fade-img { transition: opacity 2s ease-in-out; }
         
-        /* Ocultar barra de scroll para que no se vea feo como Salma (no queda 💜) */
+        /* Ocultar barra de scroll para que no se vea feo en celular */
         body { background-color: #030303; overflow-x: hidden; touch-action: pan-y; }
     </style>
 </head>
@@ -51,15 +51,15 @@
              ============================== -->
         <div id="aviso-audio" class="absolute top-10 left-0 right-0 flex justify-center z-50 pointer-events-none transition-opacity duration-1000">
             <span class="bg-black/50 text-gray-300 text-[10px] tracking-widest uppercase px-4 py-1 rounded-full backdrop-blur-md border border-gray-600">
-                Toca para reproducir
-snippets ---->
+                Presiona para escuchar
+ snippets --->
             </span>
         </div>
 
         <!-- Boton para mutear -->
         <button id="btn-mutear" class="absolute top-8 right-6 z-50 w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex justify-center items-center border border-gray-600 text-gray-400 hover:text-white transition">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-                <path id="icono-audio-path" d="M11 5L6 9H2v6h4l5 4V5z M22 9l-6 6 M16 9l6 6"></path> <!-- X de silencio por defecto -->
+                <path id="icono-audio-path" d="M11 5L6 9H2v6h4l5 4V5z M22 9l-6 6 M16 9l6 6"></path>
             </svg>
         </button>
 
@@ -70,7 +70,6 @@ snippets ---->
             
             <div class="absolute inset-0 w-full h-full anim-dvd-x">
                 <div class="absolute inset-0 w-full h-full anim-dvd-y">
-                    <!-- Z-index para poner una arriba de la otra -->
                     <img id="imagen-fondo-1" class="absolute inset-0 w-full h-full object-cover fade-img opacity-100 z-0" src="" alt="Fondo 1" />
                     <img id="imagen-fondo-2" class="absolute inset-0 w-full h-full object-cover fade-img opacity-0 z-10" src="" alt="Fondo 2" />
                 </div>
@@ -78,30 +77,25 @@ snippets ---->
 
             <div id="contenedor-particulas" class="absolute inset-0 z-20 pointer-events-none"></div>
 
-            <!-- Sombras para que el texto se lea bien -->
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(0,0,0,0.8)_100%)] z-20"></div>
             <div class="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[#0a0a0a] to-transparent z-20"></div>
 
             <!-- ==============================
                  WIDGET DEL CONTADOR
                  ============================== -->
-            <!-- Area donde detectamos si el usuario hace swipe -->
             <div id="area-swipe" class="absolute bottom-6 left-4 right-4 z-40 flex flex-col items-center gap-3">
                 
                 <div id="panel-cristal" class="w-full rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-4 flex items-center gap-4 transition-all duration-500">
                     
-                    <!-- Foto chiquita (Thumbnail) -->
                     <div id="caja-thumbnail" class="relative w-16 h-16 flex-shrink-0">
                         <div class="absolute inset-0 bg-white/20 blur-md rounded-xl"></div>
                         <img src="./thumbnail.jpg" alt="Miniatura" class="relative w-full h-full object-cover rounded-xl shadow-lg border border-white/20" onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=200&auto=format&fit=crop';"/>
                     </div>
 
-                    <!-- Aqui se van a poner los modos (1, 2, 3 o 4) desde JS -->
                     <div id="contenedor-modos" class="flex-1 relative h-[60px] w-full transition-all duration-300">
                         <!-- Vacio, se llena con innerHTML -->
                     </div>
 
-                    <!-- Texto cuando ya salio el album (escondido al inicio) -->
                     <div id="mensaje-salida" class="hidden flex-1 h-[60px] w-full flex-col justify-center items-center">
                         <span class="text-sm font-bold tracking-widest text-white uppercase animate-pulse">¡Ya Disponible!</span>
                         <span class="text-[10px] text-gray-400 mt-1">Hades ha llegado</span>
@@ -109,7 +103,6 @@ snippets ---->
 
                 </div>
 
-                <!-- Puntitos de navegacion -->
                 <div id="puntitos" class="flex gap-2 items-center mt-1">
                     <div class="dot w-1.5 h-1.5 rounded-full bg-white transition"></div>
                     <div class="dot w-1.5 h-1.5 rounded-full bg-gray-500 transition"></div>
@@ -131,7 +124,6 @@ snippets ---->
                     𝕸𝖊𝖑𝖆𝖓𝖎𝖊 𝕸𝖆𝖗𝖙𝖎𝖓𝖊𝖟
                 </h2>
                 
-                <!-- Boton oficial -->
                 <a href="https://melaniemartinez.lnk.to/HADES" target="_blank" class="px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition flex items-center gap-2">
                     <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.587 14.424c-.177.292-.55.385-.843.208-2.31-1.41-5.22-1.73-8.654-.95-.333.076-.66-.134-.736-.467-.076-.333.134-.66.467-.736 3.755-.85 6.96-.484 9.558 1.103.293.178.385.55.208.842zm1.2-3.195c-.22.36-.69.48-1.05.26-2.65-1.63-6.72-2.11-9.98-1.15-.41.12-.84-.11-.96-.52-.12-.41.11-.84.52-.96 3.73-1.09 8.28-.54 11.31 1.32.36.22.48.69.26 1.05zm.14-3.38c-3.18-1.89-8.43-2.07-11.46-1.14-.49.15-.99-.13-1.14-.62-.15-.49.13-.99.62-1.14 3.52-1.08 9.35-.87 13.06 1.33.44.26.58.84.32 1.28-.26.44-.84.58-1.28.32z"/>
@@ -145,7 +137,7 @@ snippets ---->
 
     <!-- JAVASCRIPT -->
     <script>
-        console.log("Iniciando aplicación del contador de Hades...");
+        console.log("Iniciando aplicación del contador global...");
 
         // ==========================================
         // 1. REPRODUCTOR DE MÚSICA
@@ -182,9 +174,7 @@ snippets ---->
                     prom.then(() => {
                         estaReproduciendo = true;
                         iconoPath.setAttribute('d', iconoConSonido);
-                    }).catch(err => {
-                        console.log("Esperando click para audio we: " + err);
-                    });
+                    }).catch(err => console.log("Esperando click we"));
                 }
             }
         }
@@ -220,18 +210,14 @@ snippets ---->
             for (let i = 0; i < cuantas; i++) {
                 let p = document.createElement('div');
                 p.className = 'absolute bg-[#ffeedd] rounded-full mix-blend-screen';
-                
                 let tamaño = (Math.random() * 3) + 1; 
                 p.style.width = tamaño + 'px';
                 p.style.height = tamaño + 'px';
                 p.style.left = (Math.random() * 100) + '%';
-                
                 let tiempoAnimacion = (Math.random() * 5) + 6; 
                 let retraso = Math.random() * 10;
-                
                 p.style.animation = `floatParticulas ${tiempoAnimacion}s linear infinite`;
                 p.style.animationDelay = `-${retraso}s`; 
-                
                 divParticulas.appendChild(p);
             }
         }
@@ -257,23 +243,15 @@ snippets ---->
         for(let i=0; i < fotos.length; i++) {
             let imgTemporal = new Image();
             imgTemporal.src = fotos[i];
-            
-            imgTemporal.onload = function() {
-                fotosQuesiSirven.push(fotos[i]);
-                revisarCarga();
-            };
-            imgTemporal.onerror = function() {
-                revisarCarga(); 
-            };
+            imgTemporal.onload = function() { fotosQuesiSirven.push(fotos[i]); revisarCarga(); };
+            imgTemporal.onerror = function() { revisarCarga(); };
         }
 
         function revisarCarga() {
-            imagenesCargadas++;
+            imagenesCargadas = imagenesCargadas + 1;
             if (imagenesCargadas == fotos.length && fotosQuesiSirven.length > 0) {
                 htmlImg1.src = fotosQuesiSirven[0];
-                if(fotosQuesiSirven.length > 1) {
-                    setInterval(cambiarFondo, 6500); 
-                }
+                if(fotosQuesiSirven.length > 1) setInterval(cambiarFondo, 6500); 
             }
         }
 
@@ -287,7 +265,6 @@ snippets ---->
             preload.src = srcSiguiente;
             preload.onload = function() {
                 indiceFoto = siguienteIndice;
-                
                 if (imagenActiva === 1) {
                     htmlImg2.src = srcSiguiente;
                     htmlImg2.classList.remove('opacity-0'); htmlImg2.classList.add('opacity-100', 'z-10');
@@ -393,7 +370,6 @@ snippets ---->
             }, 200);
         }
 
-        // --- Logica de arrastrar (Swipe) ---
         let inicioX = 0;
         let finX = 0;
         let areaSwipe = document.getElementById('area-swipe');
@@ -423,7 +399,7 @@ snippets ---->
         }
 
         // ==========================================
-        // 5. EL RELOJ DE VERDAD (BUG DE EMPALME ARREGLADO)
+        // 5. FECHA GLOBAL DE LANZAMIENTO (NUEVO)
         // ==========================================
         function ponerNumero(idCaja, nuevoValor, clasesTexto = "text-2xl font-bold") {
             let caja = document.getElementById(idCaja);
@@ -435,15 +411,13 @@ snippets ---->
             
             let baseStyle = "absolute tabular-nums text-white drop-shadow-md " + clasesTexto;
 
-            // BARRIDO DE LIMPIEZA: Agarrar TODOS los spans q estén en la caja para evitar bugs
             let elementosViejos = caja.querySelectorAll('span:not(.borrando)');
             
             for(let i=0; i < elementosViejos.length; i++) {
                 let viejo = elementosViejos[i];
-                viejo.classList.add('borrando'); // Le ponemos una clase para saber que ya va pa fuera
+                viejo.classList.add('borrando'); 
                 viejo.className = baseStyle + " animate-slideOutUp borrando";
                 
-                // lo borramos medio segundo despues
                 setTimeout(() => {
                     if (caja.contains(viejo)) {
                         caja.removeChild(viejo);
@@ -451,7 +425,6 @@ snippets ---->
                 }, 400);
             }
 
-            // Metemos el nuevo animado desde abajo
             let nuevoElemento = document.createElement('span');
             nuevoElemento.className = baseStyle + " animate-slideInUp";
             nuevoElemento.innerText = textoAMostrar;
@@ -460,27 +433,27 @@ snippets ---->
             valoresViejos[idCaja] = nuevoValor;
         }
 
-        function calcularViernes() {
-            let hoy = new Date(); 
-            let diasPaViernes = 5 - hoy.getDay();
-            if (diasPaViernes <= 0) {
-                diasPaViernes = diasPaViernes + 7; 
-            }
-            
-            let proximoViernes = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + diasPaViernes);
-            proximoViernes.setHours(0, 0, 0, 0); 
-            return proximoViernes.getTime();
+        // ESTA ES LA MAGIA GLOBAL
+        function calcularFechaGlobal() {
+            // El formato es: Año-Mes-Dia T Hora:Min:Seg Z
+            // La letra 'Z' significa que es horario UTC (Universal). 
+            // Las 04:00:00 Z equivalen EXACTAMENTE a las 10PM de México o 12AM de USA EST o 5AM de España.
+            // Si el lanzamiento del flyer es en OTRO MES, solo cambia el "03-27" por el mes correcto (ej. "05-27" para Mayo)
+            let fechaLanzamiento = new Date("2026-03-27T04:00:00Z");
+            return fechaLanzamiento.getTime();
         }
 
-        let fechaObjetivo = calcularViernes();
+        let fechaObjetivo = calcularFechaGlobal();
         let loopReloj;
 
         function hacerCalculoReloj() {
             if(yaSalioElAlbum) return;
 
+            // new Date().getTime() siempre va a sacar la hora que tiene el cel del usuario
             let ahorita = new Date().getTime();
             let faltan = fechaObjetivo - ahorita;
 
+            // Cuando llegamos al lanzamiento global
             if (faltan <= 0) {
                 yaSalioElAlbum = true;
                 clearInterval(loopReloj); 
