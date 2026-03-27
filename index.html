@@ -3,23 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hades - Melanie Martinez</title>
-    <!-- Usamos Tailwind por CDN porque es mas rapido de configurar -->
+    <title>Hades - Melanie Martinez | OUT NOW</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Animaciones CSS - No mover estos keyframes */
-        @keyframes slideOutUp { 
-            0% { transform: translateY(0); opacity: 1; filter: blur(0); } 
-            100% { transform: translateY(-100%); opacity: 0; filter: blur(3px); } 
-        }
-        @keyframes slideInUp { 
-            0% { transform: translateY(100%); opacity: 0; filter: blur(3px); } 
-            100% { transform: translateY(0); opacity: 1; filter: blur(0); } 
-        }
-        
-        .animate-slideOutUp { animation: slideOutUp 0.4s ease forwards; }
-        .animate-slideInUp { animation: slideInUp 0.4s ease forwards; }
-
         /* Efecto rebote del fondo como el DVD */
         @keyframes bounceX { from { transform: translateX(-3%); } to { transform: translateX(3%); } }
         @keyframes bounceY { from { transform: translateY(-3%) scale(1.15); } to { transform: translateY(3%) scale(1.15); } }
@@ -51,12 +37,10 @@
              ============================== -->
         <div id="aviso-audio" class="absolute top-10 left-0 right-0 flex justify-center z-50 pointer-events-none transition-opacity duration-1000">
             <span class="bg-black/50 text-gray-300 text-[10px] tracking-widest uppercase px-4 py-1 rounded-full backdrop-blur-md border border-gray-600">
-                Presiona para escuchar
- snippets --->
+                Toca la pantalla para audio
             </span>
         </div>
 
-        <!-- Boton para mutear -->
         <button id="btn-mutear" class="absolute top-8 right-6 z-50 w-10 h-10 bg-black/30 backdrop-blur-md rounded-full flex justify-center items-center border border-gray-600 text-gray-400 hover:text-white transition">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
                 <path id="icono-audio-path" d="M11 5L6 9H2v6h4l5 4V5z M22 9l-6 6 M16 9l6 6"></path>
@@ -78,69 +62,83 @@
             <div id="contenedor-particulas" class="absolute inset-0 z-20 pointer-events-none"></div>
 
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,rgba(0,0,0,0.8)_100%)] z-20"></div>
-            <div class="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[#0a0a0a] to-transparent z-20"></div>
+            <div class="absolute bottom-0 left-0 right-0 h-[400px] bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent z-20 pointer-events-none"></div>
 
             <!-- ==============================
-                 WIDGET DEL CONTADOR
+                 NUEVO WIDGET: HUB DE STREAMING
                  ============================== -->
-            <div id="area-swipe" class="absolute bottom-6 left-4 right-4 z-40 flex flex-col items-center gap-3">
+            <!-- Lo bajamos un poco y lo centramos -->
+            <div class="absolute bottom-8 left-4 right-4 z-40 flex flex-col items-center gap-3">
                 
-                <div id="panel-cristal" class="w-full rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-4 flex items-center gap-4 transition-all duration-500">
-                    
-                    <div id="caja-thumbnail" class="relative w-16 h-16 flex-shrink-0">
-                        <div class="absolute inset-0 bg-white/20 blur-md rounded-xl"></div>
-                        <img src="./thumbnail.jpg" alt="Miniatura" class="relative w-full h-full object-cover rounded-xl shadow-lg border border-white/20" onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=200&auto=format&fit=crop';"/>
-                    </div>
-
-                    <div id="contenedor-modos" class="flex-1 relative h-[60px] w-full transition-all duration-300">
-                        <!-- Vacio, se llena con innerHTML -->
-                    </div>
-
-                    <div id="mensaje-salida" class="hidden flex-1 h-[60px] w-full flex-col justify-center items-center">
-                        <span class="text-sm font-bold tracking-widest text-white uppercase animate-pulse">¡Ya Disponible!</span>
-                        <span class="text-[10px] text-gray-400 mt-1">Hades ha llegado</span>
-                    </div>
-
+                <!-- Etiqueta de "Ya Disponible" -->
+                <div class="bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full mb-2 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    <span class="text-[10px] font-bold tracking-[0.3em] text-white uppercase animate-pulse">¡YA DISPONIBLE!</span>
                 </div>
 
-                <div id="puntitos" class="flex gap-2 items-center mt-1">
-                    <div class="dot w-1.5 h-1.5 rounded-full bg-white transition"></div>
-                    <div class="dot w-1.5 h-1.5 rounded-full bg-gray-500 transition"></div>
-                    <div class="dot w-1.5 h-1.5 rounded-full bg-gray-500 transition"></div>
-                    <div class="dot w-1.5 h-1.5 rounded-full bg-gray-500 transition"></div>
+                <div id="panel-cristal" class="w-full rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/10 p-6 flex flex-col items-center gap-5 transition-all duration-500 shadow-[0_8px_32px_rgba(0,0,0,0.6)]">
+                    
+                    <!-- Foto de Portada (Más grande ahora) -->
+                    <div id="caja-thumbnail" class="relative w-32 h-32 flex-shrink-0 group">
+                        <div class="absolute inset-0 bg-white/20 blur-xl rounded-xl group-hover:bg-white/30 transition-all duration-500"></div>
+                        <img src="./thumbnail.jpg" alt="Portada Hades" class="relative w-full h-full object-cover rounded-xl shadow-2xl border border-white/20 transform group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=200&auto=format&fit=crop';"/>
+                    </div>
+
+                    <div class="text-center w-full">
+                        <h3 class="text-2xl font-bold tracking-widest text-white drop-shadow-md mb-1">𝕳𝖆𝖉𝖊𝖘</h3>
+                        <p class="text-xs tracking-widest text-gray-400 uppercase">Selecciona tu plataforma</p>
+                    </div>
+
+                    <!-- Botones de Plataformas (Lista) -->
+                    <div class="w-full flex flex-col gap-3 mt-2">
+                        <!-- Spotify -->
+                        <a href="https://open.spotify.com/prerelease/3LPDn82hrJZSoOHwGLFEGw?si=YBSYSRmETYCns_S6Rm-3Zg" target="_blank" class="w-full relative overflow-hidden group bg-black/40 border border-[#1DB954]/50 hover:bg-[#1DB954]/20 hover:border-[#1DB954] rounded-xl p-3 flex items-center justify-between transition-all duration-300">
+                            <div class="flex items-center gap-3">
+                                <img src="./logoSpotify.png" alt="Logo" class="w-6 h-6 object-contain" />
+
+                                <span class="text-sm font-bold tracking-wider text-white">Spotify</span>
+                            </div>
+                            <span class="text-[10px] text-white/50 group-hover:text-white transition-colors">ESCUCHAR &rarr;</span>
+                        </a>
+
+                        <!-- Apple Music -->
+                        <a href="https://music.apple.com/mx/album/hades/1874455968?ls" target="_blank" class="w-full relative overflow-hidden group bg-black/40 border border-[#FA243C]/50 hover:bg-[#FA243C]/20 hover:border-[#FA243C] rounded-xl p-3 flex items-center justify-between transition-all duration-300">
+                            <div class="flex items-center gap-3">
+                                <img src="./logoApple.png" alt="Logo" class="w-6 h-6 object-contain" />
+
+                                <span class="text-sm font-bold tracking-wider text-white">Apple Music</span>
+                            </div>
+                            <span class="text-[10px] text-white/50 group-hover:text-white transition-colors">ESCUCHAR &rarr;</span>
+                        </a>
+
+                        <!-- YouTube Music -->
+                        <a href="https://youtube.com/playlist?list=OLAK5uy_lRCnWzL1Zii-hHt7JUknazNBR_R12Qzf0&si=V5IEPDZtbOfU93Gw" target="_blank" class="w-full relative overflow-hidden group bg-black/40 border border-white/30 hover:bg-white/10 hover:border-white/60 rounded-xl p-3 flex items-center justify-between transition-all duration-300">
+                            <div class="flex items-center gap-3">
+                                <img src="./logoYoutube.png" alt="Logo" class="w-6 h-6 object-contain" />
+
+                                <span class="text-sm font-bold tracking-wider text-white">YouTube</span>
+                            </div>
+                            <span class="text-[10px] text-white/50 group-hover:text-white transition-colors">VER VIDEO &rarr;</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- ==============================
-             TEXTOS Y BOTON PRESAVE
+             TEXTOS INFERIORES
              ============================== -->
-        <div class="h-[180px] bg-gradient-to-b from-[#0a0a0a] to-black flex flex-col justify-center px-8 z-30 shrink-0">
-            <h1 class="text-4xl font-normal tracking-wider text-white">
-                𝕳𝖆𝖉𝖊𝖘
-            </h1>
-            <div class="flex justify-between items-end mt-2">
-                <h2 class="text-xl font-normal text-gray-400">
-                    𝕸𝖊𝖑𝖆𝖓𝖎𝖊 𝕸𝖆𝖗𝖙𝖎𝖓𝖊𝖟
-                </h2>
-                
-                <a href="https://youtube.com/@melaniemartinez?si=j6hhG7-qftZWh6rt" target="_blank" class="px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition flex items-center gap-2">
-                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.587 14.424c-.177.292-.55.385-.843.208-2.31-1.41-5.22-1.73-8.654-.95-.333.076-.66-.134-.736-.467-.076-.333.134-.66.467-.736 3.755-.85 6.96-.484 9.558 1.103.293.178.385.55.208.842zm1.2-3.195c-.22.36-.69.48-1.05.26-2.65-1.63-6.72-2.11-9.98-1.15-.41.12-.84-.11-.96-.52-.12-.41.11-.84.52-.96 3.73-1.09 8.28-.54 11.31 1.32.36.22.48.69.26 1.05zm.14-3.38c-3.18-1.89-8.43-2.07-11.46-1.14-.49.15-.99-.13-1.14-.62-.15-.49.13-.99.62-1.14 3.52-1.08 9.35-.87 13.06 1.33.44.26.58.84.32 1.28-.26.44-.84.58-1.28.32z"/>
-                    </svg>
-                    <span id="texto-boton" class="text-[10px] font-bold text-white uppercase">Pre-Save</span>
-                </a>
-            </div>
+        <div class="h-[60px] bg-[#0a0a0a] flex flex-col items-center justify-center shrink-0 z-30">
+            <p class="text-[9px] text-gray-500 tracking-widest uppercase">MELANIE MARTINEZ © 2026</p>
         </div>
 
     </div>
 
     <!-- JAVASCRIPT -->
     <script>
-        console.log("Iniciando aplicación del contador global...");
+        console.log("Iniciando Hub de Lanzamiento...");
 
         // ==========================================
-        // 1. REPRODUCTOR DE MÚSICA
+        // 1. REPRODUCTOR DE MÚSICA (Igualito)
         // ==========================================
         let cancionFondo = new Audio('./audio1.mp3');
         cancionFondo.volume = 0.25; 
@@ -279,231 +277,8 @@
             };
         }
 
-        // ==========================================
-        // 4. LOGICA DEL SWIPE Y MODOS (El Widget)
-        // ==========================================
-        let modoActual = 0; 
-        let yaSalioElAlbum = false; 
-        const contenedorModos = document.getElementById('contenedor-modos');
-        const puntitosDiv = document.querySelectorAll('.dot');
-        let valoresViejos = {}; 
-        
-        let plantillas = {
-            0: `
-                <div class="flex justify-between items-center h-full w-full absolute inset-0">
-                    <div class="flex flex-col items-center flex-1">
-                        <div id="box-days" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-widest text-gray-400 font-semibold">Días</span>
-                    </div>
-                    <div class="w-px h-6 bg-white/20"></div>
-                    <div class="flex flex-col items-center flex-1">
-                        <div id="box-hours" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-widest text-gray-400 font-semibold">Horas</span>
-                    </div>
-                    <div class="w-px h-6 bg-white/20"></div>
-                    <div class="flex flex-col items-center flex-1">
-                        <div id="box-mins" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-widest text-gray-400 font-semibold">Mins</span>
-                    </div>
-                    <div class="w-px h-6 bg-white/20"></div>
-                    <div class="flex flex-col items-center flex-1">
-                        <div id="box-secs" class="relative h-10 w-full overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-widest text-gray-400 font-semibold">Segs</span>
-                    </div>
-                </div>
-            `,
-            1: `
-                <div class="flex justify-around items-center h-full w-full absolute inset-0 px-4">
-                    <div class="flex flex-col items-center">
-                        <div id="box-days-only" class="relative h-10 w-16 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[10px] uppercase tracking-widest text-gray-400">Días</span>
-                    </div>
-                    <div class="w-px h-8 bg-white/20"></div>
-                    <div class="flex flex-col items-center">
-                        <div id="box-hours-only" class="relative h-10 w-16 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[10px] uppercase tracking-widest text-gray-400">Horas</span>
-                    </div>
-                </div>
-            `,
-            2: `
-                <div class="flex justify-around items-center h-full w-full absolute inset-0 px-2">
-                    <div class="flex flex-col items-center">
-                        <div id="box-total-hours" class="relative h-10 w-20 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-widest text-gray-400 text-center">Horas<br>Totales</span>
-                    </div>
-                    <div class="w-px h-8 bg-white/20"></div>
-                    <div class="flex flex-col items-center">
-                        <div id="box-rem-mins" class="relative h-10 w-16 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-[9px] uppercase tracking-widest text-gray-400 text-center">Mins<br>Actuales</span>
-                    </div>
-                </div>
-            `,
-            3: `
-                <div class="flex justify-center items-center h-full w-full absolute inset-0">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold tracking-widest text-gray-400 uppercase">¡Quedan</span>
-                        <div id="box-final-days" class="relative h-10 w-14 overflow-hidden flex justify-center items-center"></div>
-                        <span class="text-xs font-bold tracking-widest text-gray-400 uppercase">Días!</span>
-                    </div>
-                </div>
-            `
-        };
-
-        function renderizarModo() {
-            if(yaSalioElAlbum) return; 
-
-            contenedorModos.style.opacity = "0"; 
-            
-            setTimeout(function() {
-                contenedorModos.innerHTML = plantillas[modoActual];
-                valoresViejos = {}; 
-                hacerCalculoReloj(); 
-                contenedorModos.style.opacity = "1";
-                
-                for(let k=0; k < puntitosDiv.length; k++) {
-                    if(k === modoActual) {
-                        puntitosDiv[k].className = "dot w-1.5 h-1.5 rounded-full bg-white transition";
-                    } else {
-                        puntitosDiv[k].className = "dot w-1.5 h-1.5 rounded-full bg-gray-500 transition";
-                    }
-                }
-            }, 200);
-        }
-
-        let inicioX = 0;
-        let finX = 0;
-        let areaSwipe = document.getElementById('area-swipe');
-
-        areaSwipe.addEventListener('touchstart', function(e) { inicioX = e.touches[0].clientX; }, {passive: true});
-        areaSwipe.addEventListener('touchend', function(e) { finX = e.changedTouches[0].clientX; checarSiHizoSwipe(); }, {passive: true});
-
-        let mouseApretado = false;
-        areaSwipe.addEventListener('mousedown', function(e) { mouseApretado = true; inicioX = e.clientX; });
-        window.addEventListener('mouseup', function(e) { 
-            if(mouseApretado == true) { finX = e.clientX; checarSiHizoSwipe(); mouseApretado = false; }
-        });
-
-        function checarSiHizoSwipe() {
-            if(yaSalioElAlbum) return; 
-            
-            let distancia = inicioX - finX;
-            if (distancia > 40) {
-                modoActual = modoActual + 1;
-                if(modoActual > 3) modoActual = 0;
-                renderizarModo();
-            } else if (distancia < -40) {
-                modoActual = modoActual - 1;
-                if(modoActual < 0) modoActual = 3;
-                renderizarModo();
-            }
-        }
-
-        // ==========================================
-        // 5. FECHA GLOBAL DE LANZAMIENTO (NUEVO)
-        // ==========================================
-        function ponerNumero(idCaja, nuevoValor, clasesTexto = "text-2xl font-bold") {
-            let caja = document.getElementById(idCaja);
-            if (!caja) return; 
-            if (valoresViejos[idCaja] === nuevoValor) return; 
-
-            let textoAMostrar = nuevoValor;
-            if(nuevoValor < 10) { textoAMostrar = "0" + nuevoValor; }
-            
-            let baseStyle = "absolute tabular-nums text-white drop-shadow-md " + clasesTexto;
-
-            let elementosViejos = caja.querySelectorAll('span:not(.borrando)');
-            
-            for(let i=0; i < elementosViejos.length; i++) {
-                let viejo = elementosViejos[i];
-                viejo.classList.add('borrando'); 
-                viejo.className = baseStyle + " animate-slideOutUp borrando";
-                
-                setTimeout(() => {
-                    if (caja.contains(viejo)) {
-                        caja.removeChild(viejo);
-                    }
-                }, 400);
-            }
-
-            let nuevoElemento = document.createElement('span');
-            nuevoElemento.className = baseStyle + " animate-slideInUp";
-            nuevoElemento.innerText = textoAMostrar;
-            
-            caja.appendChild(nuevoElemento);
-            valoresViejos[idCaja] = nuevoValor;
-        }
-
-        // ESTA ES LA MAGIA GLOBAL
-        function calcularFechaGlobal() {
-            // El formato es: Año-Mes-Dia T Hora:Min:Seg Z
-            // La letra 'Z' significa que es horario UTC (Universal). 
-            // Las 04:00:00 Z equivalen EXACTAMENTE a las 10PM de México o 12AM de USA EST o 5AM de España.
-            // Si el lanzamiento del flyer es en OTRO MES, solo cambia el "03-27" por el mes correcto (ej. "05-27" para Mayo)
-            let fechaLanzamiento = new Date("2026-03-27T04:00:00Z");
-            return fechaLanzamiento.getTime();
-        }
-
-        let fechaObjetivo = calcularFechaGlobal();
-        let loopReloj;
-
-        function hacerCalculoReloj() {
-            if(yaSalioElAlbum) return;
-
-            // new Date().getTime() siempre va a sacar la hora que tiene el cel del usuario
-            let ahorita = new Date().getTime();
-            let faltan = fechaObjetivo - ahorita;
-
-            // Cuando llegamos al lanzamiento global
-            if (faltan <= 0) {
-                yaSalioElAlbum = true;
-                clearInterval(loopReloj); 
-                
-                document.getElementById('contenedor-modos').style.display = 'none';
-                document.getElementById('puntitos').style.display = 'none';
-                document.getElementById('caja-thumbnail').style.display = 'none';
-                
-                let msg = document.getElementById('mensaje-salida');
-                msg.classList.remove('hidden');
-                msg.classList.add('flex');
-
-                let textoBtn = document.getElementById('texto-boton');
-                if (textoBtn) textoBtn.innerText = "ESCUCHAR AHORA";
-                
-                let panel = document.getElementById('panel-cristal');
-                panel.classList.remove('gap-4');
-                panel.classList.add('justify-center');
-                
-                return; 
-            }
-
-            let dias = Math.floor(faltan / (1000 * 60 * 60 * 24));
-            let horas_totales = Math.floor(faltan / (1000 * 60 * 60));
-            let horas = Math.floor((faltan % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            let minutos = Math.floor((faltan % (1000 * 60 * 60)) / (1000 * 60));
-            let segundos = Math.floor((faltan % (1000 * 60)) / 1000);
-
-            if(modoActual == 0) {
-                ponerNumero('box-days', dias);
-                ponerNumero('box-hours', horas);
-                ponerNumero('box-mins', minutos);
-                ponerNumero('box-secs', segundos);
-            } 
-            else if (modoActual == 1) {
-                ponerNumero('box-days-only', dias, "text-3xl");
-                ponerNumero('box-hours-only', horas, "text-3xl");
-            } 
-            else if (modoActual == 2) {
-                ponerNumero('box-total-hours', horas_totales, "text-3xl");
-                ponerNumero('box-rem-mins', minutos, "text-3xl");
-            } 
-            else if (modoActual == 3) {
-                ponerNumero('box-final-days', dias, "text-3xl");
-            }
-        }
-
-        renderizarModo();
-        loopReloj = setInterval(hacerCalculoReloj, 1000); 
-
+        // Se borró todo el Javascript del reloj porque ya no hace falta.
+        // ¡El Hub ya está listo para redirigir a los fans a la música!
     </script>
 </body>
 </html>
